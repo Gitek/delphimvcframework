@@ -2474,7 +2474,8 @@ begin
   FMiddlewares := TList<IMVCMiddleware>.Create;
   FControllers := TObjectList<TMVCControllerDelegate>.Create(True);
   FApplicationSession := nil;
-  FSavedOnBeforeDispatch := nil;
+  //Gitek, settes i fix
+  //FSavedOnBeforeDispatch := nil;
   WebRequestHandler.CacheConnections := True;
   WebRequestHandler.MaxConnections := 4096;
 
@@ -3421,11 +3422,6 @@ procedure TMVCEngine.OnBeforeDispatch(ASender: TObject; ARequest: TWebRequest;
   AResponse: TWebResponse; var AHandled: Boolean);
 begin
   AHandled := False;
-  { there is a bug in WebBroker Linux on 10.2.1 tokyo }
-  // if Assigned(FSavedOnBeforeDispatch) then
-  // begin
-  // FSavedOnBeforeDispatch(ASender, ARequest, AResponse, AHandled);
-  // end;
 
   if IsShuttingDown then
   begin
@@ -3433,6 +3429,14 @@ begin
     AResponse.ContentType := TMVCMediaType.TEXT_PLAIN;
     AResponse.Content := 'Server is shutting down';
     AHandled := True;
+    exit; // Gitek
+  end;
+
+  { there is a bug in WebBroker Linux on 10.2.1 tokyo }
+  //Gitek
+  if Assigned(FSavedOnBeforeDispatch) then
+  begin
+   FSavedOnBeforeDispatch(ASender, ARequest, AResponse, AHandled);
   end;
 
   if not AHandled then
